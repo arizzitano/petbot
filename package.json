@@ -1,0 +1,19 @@
+{
+  "author": "Ari Rizzitano <arizzitano@gmail.com> (http://arizzitano.com/)",
+  "name": "petbot",
+  "description": "web controller for RC car",
+  "version": "0.0.1",
+  "keywords": [
+    "arduino",
+    "socket.io"
+  ],
+  "main": "petbot.js",
+  "engines": {
+    "node": ">=0.10.9"
+  },
+  "dependencies": {
+  	"socket.io": "0.9.14",
+    "duino": "0.0.7"
+  },
+  "devDependencies": {}
+}
