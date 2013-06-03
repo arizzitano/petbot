@@ -2,6 +2,7 @@ var arduino = require('duino');
 var app = require('http').createServer(handler);
 var io = require('socket.io').listen(app);
 var fs = require('fs');
+var __static = './public';
 var pinMap = {
 	'forward': '02',
 	'back': '03',
@@ -13,15 +14,15 @@ var board = new arduino.Board({
   debug: true
 });
 
-/*
-board.on('ready', function(){
-  led.blink();
+app.get('/', function(request, response) {
+  response.send('Hello World!');
 });
+
 */
 app.listen(8080);
 
 function handler (req, res) {
-  fs.readFile(__dirname + '/index.html',
+  fs.readFile(__static + '/index.html',
   function (err, data) {
     if (err) {
       res.writeHead(500);
