@@ -14,11 +14,6 @@ var board = new arduino.Board({
   debug: true
 });
 
-app.get('/', function(request, response) {
-  response.send('Hello World!');
-});
-
-*/
 app.listen(8080);
 
 function handler (req, res) {
