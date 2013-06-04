@@ -17,7 +17,7 @@ var board = new arduino.Board({
   debug: true
 });
 */
-app.listen(8080);
+app.listen(process.env.PORT || 8080);
 
 function handler (req, res) {
 	var urlToServe = (urlconf[req.url] != null) ? urlconf[req.url] : req.url;
