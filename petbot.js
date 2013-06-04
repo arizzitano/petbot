@@ -1,4 +1,4 @@
-var arduino = require('duino');
+//var arduino = require('duino');
 var app = require('http').createServer(handler);
 var io = require('socket.io').listen(app);
 var fs = require('fs');
@@ -12,11 +12,11 @@ var pinMap = {
 var urlconf = {
 	'/': '/index.html'
 };
-
+/*
 var board = new arduino.Board({
   debug: true
 });
-
+*/
 app.listen(8080);
 
 function handler (req, res) {
