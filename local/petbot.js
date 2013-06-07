@@ -1,4 +1,4 @@
-//var arduino = require('duino');
+var arduino = require('duino');
 var app = require('http').createServer(handler);
 var io = require('socket.io').listen(app);
 var fs = require('fs');
@@ -9,15 +9,12 @@ var pinMap = {
 	'left': '04',
 	'right': '05'
 };
-var urlconf = {
-	'/': '/index.html'
-};
-/*
+
 var board = new arduino.Board({
   debug: true
 });
-*/
-app.listen(process.env.PORT || 5000);
+
+app.listen(8080);
 
 function handler (req, res) {
 	var urlToServe = (urlconf[req.url] != null) ? urlconf[req.url] : req.url;
@@ -32,7 +29,7 @@ function handler (req, res) {
 }
 
 function handleSignal(direction, active) {
-	console.log(direction + ' ' + active);
+	console.log('arduino: ' + direction + ' ' + active);
 	var level = (active) ? board.HIGH : board.LOW;
 	board.digitalWrite(pinMap[direction], level);
 }

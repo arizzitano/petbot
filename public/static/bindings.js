@@ -1,4 +1,5 @@
-var socket = io.connect('http://petbot.herokuapp.com:8080');
+//var socket = io.connect('http://petbot.herokuapp.com:8080');
+var socket = io.connect('http://localhost:5000');
 socket.emit('event', {status: 'loaded'});
 var keys = {
 	37: {

@@ -1,1 +1,1 @@
-web: node petbot.js
+web: node remote/petbot.js
