@@ -22,9 +22,9 @@ function handler (req, res) {
 }
 
 io.sockets.on('connection', function (socket) {
-	console.log('working');
+	console.log('connection established');
 	socket.on('direction', function (data) {
-		// relay this direction signal to the local app somehow.
-    	//handleSignal(data.name, data.active);
+		console.log('broadcasting: '+data);
+		socket.broadcast.emit('direction', data);
 	});
 });
