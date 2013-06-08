@@ -1,5 +1,10 @@
 var app = require('http').createServer(handler);
 var io = require('socket.io').listen(app);
+io.configure(function () {
+	io.set("transports", ["xhr-polling"]);
+	io.set("polling duration", 10);
+});
+
 var fs = require('fs');
 var __dirname = './public';
 
