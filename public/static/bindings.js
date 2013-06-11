@@ -26,6 +26,17 @@ var keys = {
 $(document).ready(function() {
 	var sendSignal = function(key, type) {
 		var keyStatus = (type == 'keydown');
+		// killswitch behavior for esc
+		if (key == 27) {
+			for (var i=37; i<41; i++) {
+				keys[i].active = false;
+				socket.emit('direction', {
+					name: 'killswitch',
+					active: true
+				});
+			}
+			return false;
+		}
 		if (key > 36 && key < 41 && (keys[key].active != keyStatus)) {
 			// prevent simultaneous conflicting directions
 			for (var i=37; i<41; i++) {

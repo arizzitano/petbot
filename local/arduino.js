@@ -1,6 +1,7 @@
 var arduino = require('duino');
 var client = require('socket.io-client');
 var socket = client.connect('http://petbot.herokuapp.com');
+//var socket = client.connect('http://localhost:5000');
 var board = new arduino.Board({
 	debug: true
 });
@@ -17,10 +18,22 @@ function handleSignal(direction, active) {
 	board.digitalWrite(pinMap[direction], level);
 }
 
+function kill() {
+	console.log('KILLSWITCH ENGAGE');
+	board.digitalWrite('02', board.LOW);
+	board.digitalWrite('03', board.LOW);
+	board.digitalWrite('04', board.LOW);
+	board.digitalWrite('05', board.LOW);
+}
+
 socket.on('connect', function(){
 	console.log('connected to remote server');
 	socket.on('direction', function(data) {
-		handleSignal(data.name, data.active);
+		if (data.name == 'killswitch') {
+			kill();
+		} else {
+			handleSignal(data.name, data.active);
+		}
 	});
 	socket.on('disconnect', function() {
 		console.log('disconnected from remote server');
