@@ -5,11 +5,11 @@ var socket = require('socket.io');
 app.configure(function () {
 	app.use(express.static(__dirname + '/../public'));
 	
-	if (process.env != null) {
-		var username = process.env.AUTH_USERNAME;
-		var password = process.env.AUTH_PASSWORD;
+	var username = process.env.AUTH_USERNAME;
+	var password = process.env.AUTH_PASSWORD;
+	//if (process.env != null) {
 		app.use(express.basicAuth(username, password));
-	}
+	//}
 });
 
 var server = app.listen(process.env.PORT || 5000);
