@@ -14,7 +14,12 @@
   "dependencies": {
   	"socket.io": "0.9.14",
   	"socket.io-client": "0.9.16",
-    "duino": "0.0.7"
+    "duino": "0.0.7",
+    "express": "3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arizzitano/petbot.git"
   },
   "devDependencies": {}
 }

@@ -1,19 +1,27 @@
-var app = require('http').createServer(handler);
-var io = require('socket.io').listen(app);
-io.configure(function () {
-	io.set("transports", ["xhr-polling"]);
-	io.set("polling duration", 10);
-});
+var express = require('express');
+//var http = require('http');
+var app = express();
+//var server = http.createServer(app);
+var socket = require('socket.io');
 
 var fs = require('fs');
-var __dirname = './public';
 
 var urlconf = {
 	'/': '/index.html'
 };
 
-app.listen(process.env.PORT || 5000);
+app.configure(function () {
+	app.use(express.static(__dirname + '/../public'));
+	
+	var username = process.env.AUTH_USERNAME;
+	var password = process.env.PASSWORD;
+	if (username && password) {
+		app.use(express.basicAuth(username, password));
+	}
+});
 
+var server = app.listen(process.env.PORT || 5000);
+/*
 function handler (req, res) {
 	var urlToServe = (urlconf[req.url] != null) ? urlconf[req.url] : req.url;
 	fs.readFile(__dirname + urlToServe, function (err, data) {
@@ -25,6 +33,14 @@ function handler (req, res) {
 		res.end(data);
 	});
 }
+*/
+
+var io = socket.listen(server);
+
+io.configure(function () {
+	io.set("transports", ["xhr-polling"]);
+	io.set("polling duration", 10);
+});
 
 io.sockets.on('connection', function (socket) {
 	console.log('connection established');
