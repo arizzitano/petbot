@@ -1,13 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>PETBOT</title>
+    <title>PETBOT Web Interface</title>
     <script src="/socket.io/socket.io.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
     <script src="static/bindings.js"></script>
     <link rel="stylesheet" type="text/css" href="static/style.css" />
 </head>
 <body>
+	<div class="intro">
+		<h1>PETBOT v0.0.1</h1>
+		<p>Call into VSee first so you can see where you're going. Then control PETBOT by
+		pressing your arrow keys:</p>
+		<ul>
+			<li>&#x2191; - Forward</li>
+			<li>&#x2193; - Backward</li>
+			<li>&#x2190; - Steer left</li>
+			<li>&#x2192; - Steer right</li>
+			<li>Esc - KILLSWITCH</li>
+		</ul>
+		<p>Bug? Strange behavior? PETBOT disobeying Asimov's laws of robotics? Shoot a quick
+		email to <a href="mailto:arizzitano@appneta.com" target="_blank">arizzitano@appneta.com</a>
+		or ping @ari on HipChat. Better yet, <a href="http://github.com/arizzitano/petbot">open a pull request</a>.
+	</div>
 	<div class="direction"></div>
 </body>
 </html>

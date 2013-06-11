@@ -9,6 +9,19 @@ html, body {
 body {
 	background: #232345;
 	margin: auto;
+	font-family: helvetica, arial, sans-serif;
+	color: #eeedee;
+	font-size: 0.9em;
+}
+.intro {
+	width: 600px;
+	margin: 20px auto;
+}
+ul {
+	list-style: none;
+}
+a, a:visited, a:active {
+	color: #3f85c5;
 }
 .direction {
 	color: #fff;
