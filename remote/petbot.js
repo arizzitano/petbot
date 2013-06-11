@@ -5,9 +5,9 @@ var socket = require('socket.io');
 app.configure(function () {
 	app.use(express.static(__dirname + '/../public'));
 	
-	var username = process.env.AUTH_USERNAME;
-	var password = process.env.AUTH_PASSWORD;
-	if (username && password) {
+	if (process.env != null) {
+		var username = process.env.AUTH_USERNAME;
+		var password = process.env.AUTH_PASSWORD;
 		app.use(express.basicAuth(username, password));
 	}
 });
