@@ -3,13 +3,12 @@ var app = express();
 var socket = require('socket.io');
 
 app.configure(function () {
-	app.use(express.static(__dirname + '/../public'));
-	
 	var username = process.env.AUTH_USERNAME;
 	var password = process.env.AUTH_PASSWORD;
-	//if (process.env != null) {
+	if (username != null && password != null) {
 		app.use(express.basicAuth(username, password));
-	//}
+	}
+	app.use(express.static(__dirname + '/../public'));
 });
 
 var server = app.listen(process.env.PORT || 5000);
