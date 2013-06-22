@@ -1,7 +1,7 @@
+var config = require('../common/config');
 var arduino = require('duino');
 var client = require('socket.io-client');
-var socket = client.connect('http://petbot.herokuapp.com');
-//var socket = client.connect('http://localhost:5000');
+var socket = client.connect(config.HOST);
 var board = new arduino.Board({
 	debug: true
 });

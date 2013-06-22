@@ -1,5 +1,4 @@
-var socket = io.connect('http://petbot.herokuapp.com');
-//var socket = io.connect('http://localhost:5000');
+var socket = io.connect();
 socket.emit('event', {status: 'loaded'});
 var keys = {
 	37: {
@@ -56,7 +55,7 @@ $(document).ready(function() {
 			}
 		}
 	};
-	
+
 	$('body').on('keyup keydown', function(e) {
 		sendSignal(e.which, e.type);
 	});
