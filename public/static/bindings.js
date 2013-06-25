@@ -1,4 +1,5 @@
 var socket = io.connect();
+socket.emit('clientId', {id: 'browser'});
 var keys = {
 	37: {
 		name: 'left',
@@ -20,6 +21,23 @@ var keys = {
 		active: false,
 		mode: 'move'
 	}
+};
+var localStatus = {
+    online: false,
+    status: 'connecting',
+    message: 'Attempting to connect to PETBOT...'
+};
+socket.on('localStatus', function (data) {
+    localStatus = data;
+    try {
+        setStatus();
+    } catch (err) {
+        console.log('jquery not loaded yet');
+    }
+});
+var setStatus = function () {
+    $('.top-banner').addClass(localStatus.status);
+    $('.top-banner').text(localStatus.message);
 };
 $(document).ready(function() {
 	var sendSignal = function(key, type) {
@@ -55,6 +73,7 @@ $(document).ready(function() {
 		}
 	};
 
+    setStatus();
 	$('body').on('keyup keydown', function(e) {
 		sendSignal(e.which, e.type);
 	});

@@ -66,3 +66,18 @@ a, a:visited, a:active {
 .back.left:before {
 	content: '\2199' !important;
 }
+.top-banner {
+    width: 100%;
+    height: 40px;
+    display: block;
+    color: #fff;
+    background: #fdd644;
+    padding: 10px;
+    text-align: center;
+}
+.top-banner.online {
+    background: #bada55;
+}
+.top-banner.offline {
+    background: #c73224;
+}

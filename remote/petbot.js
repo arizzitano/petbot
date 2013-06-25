@@ -1,8 +1,10 @@
+var config = require('../common/config');
 var express = require('express');
 var app = express();
 var socket = require('socket.io');
 var _ = require('underscore');
 var queue = [];
+var localServerUp = null;
 
 app.configure(function () {
 	var username = process.env.AUTH_USERNAME;
@@ -25,15 +27,57 @@ io.configure(function () {
 io.sockets.on('connection', function (socket) {
     var address = socket.handshake.address;
 	console.log('new connection ' + socket.id + ' from ' + address.address + ":" + address.port);
-	updateQueue({
-	    id: socket.id,
-	    socket: socket
-	}, true);
+	socket.on('clientId', function (data) {
+        if (data.id === config.DEVICE_ID) {
+            handleLocalServer(socket);
+        } else {
+            updateQueue({
+                id: socket.id,
+                socket: socket
+            }, true);
+        }
+    });
 });
+
+var handleLocalServer = function (socket) {
+    console.log('local server is connected');
+    localServerUp = true;
+    broadcastLocalStatus(localServerUp, socket);
+    socket.on('disconnect', function () {
+        console.log('local server disconnected');
+        localServerUp = false;
+        broadcastLocalStatus(localServerUp, socket);
+    });
+};
+
+var broadcastLocalStatus = function (isUp, socket) {
+    var statusObj = {};
+    if (isUp === true) {
+        statusObj = {
+            online: true,
+            status: 'online',
+            message: 'PETBOT is online and ready to go!'
+        };
+    } else if (isUp === false) {
+        statusObj = {
+            online: false,
+            status: 'offline',
+            message: 'PETBOT is offline'
+        };
+    } else {
+        statusObj = {
+            online: false,
+            status: 'connecting',
+            message: 'Attempting to connect to PETBOT...'
+        };
+    }
+    socket.broadcast.emit('localStatus', statusObj);
+};
 
 // fire when a new connection moves into the #0 spot
 var openCurrentSocket = function (member) {
     console.log('now listening to connection '+member.id);
+    broadcastLocalStatus(localServerUp, member.socket);
     member.socket.on('direction', function (data) {
         console.log('broadcasting: '+data);
         member.socket.broadcast.emit('direction', data);

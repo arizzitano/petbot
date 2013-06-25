@@ -1,3 +1,4 @@
+var config = require('../common/config');
 var gpio = require('pi-gpio');
 var client = require('socket.io-client');
 var socket = client.connect('http://petbot.herokuapp.com');
@@ -40,6 +41,7 @@ function kill() {
 
 socket.on('connect', function(){
 	console.log('connected to remote server');
+	socket.emit('clientId', {id: config.DEVICE_ID});
 	for (var i=0; i<pinMap.length; i++) {
 		try {
 			gpio.open(pinMap[i].pin, 'output');
