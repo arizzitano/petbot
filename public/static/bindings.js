@@ -1,5 +1,4 @@
 var socket = io.connect();
-socket.emit('event', {status: 'loaded'});
 var keys = {
 	37: {
 		name: 'left',

@@ -16,7 +16,8 @@
   	"socket.io-client": "0.9.16",
     "duino": "0.0.7",
     "pi-gpio": "0.0.2",
-    "express": "3.0"
+    "express": "3.0",
+    "underscore": "1.4.4"
   },
   "repository": {
     "type": "git",
