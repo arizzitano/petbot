@@ -31,13 +31,14 @@ a, a:visited, a:active {
 	left: 0;
 	margin-top: 265px;
 	pointer-events: none;
-}
-.direction:before {
-	position: absolute;
-	top: 50%;
-	left: 0;
-	margin-top: -1.12em;
-	width: 100%;
+
+	&:before {
+		position: absolute;
+		top: 50%;
+		left: 0;
+		margin-top: -1.12em;
+		width: 100%;
+	}
 }
 .forward, .back, .left, .right {
 	background: #6aae49;
@@ -55,16 +56,16 @@ a, a:visited, a:active {
 	content: '\2192';
 }
 .forward.right:before {
-	content: '\2197' !important;
+	content: '\2197';
 }
 .forward.left:before {
-	content: '\2196' !important;
+	content: '\2196';
 }
 .back.right:before {
-	content: '\2198' !important;
+	content: '\2198';
 }
 .back.left:before {
-	content: '\2199' !important;
+	content: '\2199';
 }
 .top-banner {
     width: 100%;
@@ -75,9 +76,12 @@ a, a:visited, a:active {
     padding: 10px;
     text-align: center;
 }
-.top-banner.online {
-    background: #bada55;
-}
-.top-banner.offline {
-    background: #c73224;
+.top-banner {
+	&.online {
+	    background: #bada55;
+	}
+
+	&.offline {
+	    background: #c73224;
+	}
 }
