@@ -21,7 +21,7 @@ var tasks = [
     name: 'reset local',
     watch: /^local\//,
     exec: function () {
-      info('Local: Starting...')
+      info('Local: Starting...');
       exec('node', ['arduino.js'], { cwd: './local', pipe: true, name: 'local' }, function (err) {
         info('Local: Exited.');
       });
@@ -32,8 +32,9 @@ var tasks = [
     name: 'reset remote',
     watch: /^remote\//,
     exec: function () {
-      info('Remote: Starting...')
-      exec('node', ['petbot.js'], { cwd: './remote', pipe: true, name: 'remote' }, function (err) {
+      info('Remote: Starting...');
+      var env = { PORT: 5000 };
+      exec('node', ['petbot.js'], { cwd: './remote', pipe: true, name: 'remote', env: env }, function (err) {
         info('Remote: Exited.');
       });
     },

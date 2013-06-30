@@ -2,10 +2,8 @@
 <html>
 <head>
     <title>PETBOT Web Interface</title>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
-    <script src="static/bindings.js"></script>
-    <link rel="stylesheet" type="text/css" href="static/style.css" />
+    <link rel="stylesheet/less" type="text/css" href="static/style.less" />
+    <script src="/lib/less-1.3.3.min.js"></script>
 </head>
 <body>
     <div class="top-banner">Connecting to PETBOT...</div>
@@ -25,5 +23,8 @@
 		or ping @ari on HipChat. Better yet, <a href="http://github.com/arizzitano/petbot">open a pull request</a>.
 	</div>
 	<div class="direction"></div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <script src="static/bindings.js"></script>
 </body>
 </html>
