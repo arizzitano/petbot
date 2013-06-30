@@ -14,7 +14,7 @@ LocalServer.prototype.handleSignal = function (data) {
     if (data.name == 'killswitch') {
         self.kill();
     } else {
-        var level = (data.active) ? BOARD_HIGH : BOARD_LOW;
+        var level = (data.active) ? self.BOARD_HIGH : self.BOARD_LOW;
         self.write(data.name, level);
     }
 }
