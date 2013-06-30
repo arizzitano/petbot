@@ -7,12 +7,12 @@ var queue = [];
 var localServerUp = null;
 
 app.configure(function () {
-	var username = process.env.AUTH_USERNAME;
-	var password = process.env.AUTH_PASSWORD;
-	if (username != null && password != null) {
-		app.use(express.basicAuth(username, password));
-	}
-	app.use(express.static(__dirname + '/../public'));
+    var username = process.env.AUTH_USERNAME;
+    var password = process.env.AUTH_PASSWORD;
+    if (username != null && password != null) {
+        app.use(express.basicAuth(username, password));
+    }
+    app.use(express.static(__dirname + '/../public'));
 });
 
 var server = app.listen(process.env.PORT || 5000);
@@ -20,14 +20,14 @@ var server = app.listen(process.env.PORT || 5000);
 var io = socket.listen(server);
 
 io.configure(function () {
-	io.set("transports", ["xhr-polling"]);
-	io.set("polling duration", 10);
+    io.set("transports", ["xhr-polling"]);
+    io.set("polling duration", 10);
 });
 
 io.sockets.on('connection', function (socket) {
     var address = socket.handshake.address;
-	console.log('new connection ' + socket.id + ' from ' + address.address + ":" + address.port);
-	socket.on('clientId', function (data) {
+    console.log('new connection ' + socket.id + ' from ' + address.address + ":" + address.port);
+    socket.on('clientId', function (data) {
         if (data.id === config.DEVICE_ID) {
             handleLocalServer(socket);
         } else {
