@@ -8,6 +8,8 @@ var _ = require('underscore');
 var queue = [];
 var localServerUp = null;
 
+var T = require('./tbone.js').tbone;
+
 app.configure(function () {
     var username = process.env.AUTH_USERNAME;
     var password = process.env.AUTH_PASSWORD;
