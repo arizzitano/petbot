@@ -1287,6 +1287,7 @@ var baseModel = {
         delete this['tboneid'];
         delete this['attributes'];
         this._events = {};
+        this._removeCallbacks = {};
     },
 
     /**
@@ -1564,27 +1565,51 @@ var baseCollection = baseModel.extend({
              * assign a temporary ID so that it gets included when iterating over the
              * collection.
              */
-            T(function () {
+            var removed;
+            var update = function () {
                 if (lastId) {
                     self['unset'](lastId, null);
                     self['trigger']('change:' + lastId);
+                    delete self._removeCallbacks[lastId];
                 }
-                var id = child['queryId']();
-                if (!id && !lastId) {
-                    id = '__unidentified' + (nextTempId++);
-                }
-                if (id) {
+                if (!removed) {
+                    var id = child['queryId']();
+                    if (!id) {
+                        id = '__unidentified' + (nextTempId++);
+                    }
                     id = '#' + id;
                     self['query'](id, child);
                     self['trigger']('change:' + id);
+                    self._removeCallbacks[id] = remove;
+                    lastId = id;
                 }
-                lastId = id;
-            });
+            };
+            var remove = function () {
+                removed = true;
+                update();
+            };
+            autorun(update);
         } else {
             /**
              * Otherwise, the collection will act as a simple array of models.
              */
             self['push'](child);
+        }
+    },
+
+    /**
+     * Remove a model by ID or by model instance.
+     *
+     * ** This is only supported currently when lookupById is set. **
+     */
+    'remove': function (model) {
+        if (!this['lookupById']) {
+            log(ERROR, this, 'removeNotSupported', 'collection.remove is only supported ' +
+                'with lookupById set to true.');
+        }
+        var id = '#' + (isQueryable(model) ? model['queryId']() : model);
+        if (this._removeCallbacks[id]) {
+            this._removeCallbacks[id]();
         }
     }
 });
@@ -1896,7 +1921,7 @@ var baseView = {
         return instance;
     },
     'extend': function (subclass) {
-        return _.extend({}, this, subclass);
+        return _.extend({}, this, subclass, { parentView: this });
     },
 
     '$': function(selector) {
@@ -1911,7 +1936,7 @@ var baseView = {
         _.extend(self, opts);
         self['$el'] = $(self['el']);
         self['el']['view'] = self;
-        self.priority = self.parentView ? self.parentView.priority - 1 : BASE_PRIORITY_VIEW;
+        self.priority = self.domParentView ? self.domParentView.priority - 1 : BASE_PRIORITY_VIEW;
         self.scope = autorun(self.render, self, self.priority, 'view_' + self.Name,
                              self.onScopeExecute, self, true);
     },
@@ -2116,11 +2141,15 @@ var baseView = {
     },
 
     'parentRoot': function () {
-        return this.parentView && this.parentView.root();
+        return this.domParentView && this.domParentView.root();
     },
 
+    /**
+     * Get the DOM parent view, i.e. the view associated with the closest
+     * ancestor DOM node that is a view root element.
+     */
     'parent': function () {
-        return this.parentView;
+        return this.domParentView;
     }
 };
 
@@ -2192,10 +2221,6 @@ function render($els, parent, subViews) {
             if (!name) {
                 error('No view or template was specified for this element: ', el);
             }
-            /**
-             * Add a class matching the view name for styling convenience.
-             */
-            $this.addClass(name);
 
             /**
              * Find the corresponding view matching the name (`viewId` or `templateId`) to the
@@ -2205,6 +2230,17 @@ function render($els, parent, subViews) {
              */
             var myView = views[name] || defaultView;
 
+            /**
+             * Add a class matching the view name for CSS.
+             */
+            $this.addClass(name);
+
+            var parentView = myView.parentView;
+            while (parentView && parentView.Name) {
+                $this.addClass(parentView.Name);
+                parentView = parentView.parentView;
+            }
+
             var rootObj = hashedObjectCache[root] || tbone;
 
             var opts = {
@@ -2212,7 +2248,7 @@ function render($els, parent, subViews) {
                 origOuterHTML: outerHTML,
                 'el': el,
                 templateId: templateId,
-                parentView: parent,
+                domParentView: parent,
                 rootObj: rootObj,
                 rootStr: hashedObjectCache[root] ? '' : root
             };
@@ -2316,8 +2352,9 @@ function createView(name, base, fn, opts) {
     } else {
         fn = null;
     }
-    opts = arg || {};
-    opts.Name = name;
+    opts = _.extend({}, arg || {}, {
+        Name: name
+    });
     var baseReady = base['ready'];
     if (fn) {
         opts['ready'] = baseReady === noop ? fn : function () {
