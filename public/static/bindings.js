@@ -22,28 +22,18 @@ var keys = {
         mode: 'move'
     }
 };
-var localStatus = {
+T('localStatus', {
     online: false,
     status: 'connecting',
     message: 'Attempting to connect to PETBOT...'
-};
+});
 socket.on('localStatus', function (data) {
-    localStatus = data;
-    try {
-        setStatus();
-    } catch (err) {
-        console.log('jquery not loaded yet');
-    }
+    T('localStatus', data);
 });
 socket.on('reloadui', function () {
     console.log('Reloading...')
     location.reload();
 });
-
-var setStatus = function () {
-    $('.top-banner').addClass(localStatus.status);
-    $('.top-banner').text(localStatus.message);
-};
 $(document).ready(function() {
     var sendSignal = function(key, type) {
         var keyStatus = (type == 'keydown');
@@ -78,8 +68,8 @@ $(document).ready(function() {
         }
     };
 
-    setStatus();
     $('body').on('keyup keydown', function(e) {
         sendSignal(e.which, e.type);
     });
+    tbone.render($('[tbone]'));
 });

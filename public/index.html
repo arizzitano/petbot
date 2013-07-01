@@ -6,7 +6,7 @@
     <script src="/lib/less-1.3.3.min.js"></script>
 </head>
 <body>
-    <div class="top-banner">Connecting to PETBOT...</div>
+    <div tbone="tmpl topBannerWrap"></div>
     <div class="intro">
         <h1>PETBOT v0.0.1</h1>
         <p>Call into VSee first so you can see where you're going. Then control PETBOT by
@@ -23,8 +23,17 @@
         or ping @ari on HipChat. Better yet, <a href="http://github.com/arizzitano/petbot">open a pull request</a>.
     </div>
     <div class="direction"></div>
+
+    <script name="topBannerWrap" type="text/tbone-tmpl">
+        <div class="top-banner <%=localStatus.status%>">
+            <%=localStatus.message%>
+        </div>
+    </script>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+    <script src="http://cdn.tbonejs.org/tbone-v0.3.3.js"></script>
     <script src="static/bindings.js"></script>
 </body>
 </html>
