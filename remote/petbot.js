@@ -9,6 +9,18 @@ var queue = [];
 var localServerUp = null;
 
 var T = require('./tbone.js').tbone;
+var tbone = T;
+
+var browsers = tbone.collections.base.make({
+    lookupById: true
+});
+T('browsers', browsers);
+T('drive', function () {
+    var driving = _.filter(_.pluck(T('browsers') || {}, 'drive'), function (drive) {
+        return drive && (!!drive.right || !!drive.forward);
+    });
+    return driving.length === 0 ? {} : driving[0];
+});
 
 app.configure(function () {
     var username = process.env.AUTH_USERNAME;
@@ -37,6 +49,9 @@ var io = socket.listen(server);
 io.configure(function () {
     io.set("transports", ["xhr-polling"]);
     io.set("polling duration", 10);
+    io.set("log level", 1);
+    io.set('heartbeat interval', 12);
+    io.set('heartbeat timeout', 20);
 });
 
 io.sockets.on('connection', function (socket) {
@@ -46,10 +61,7 @@ io.sockets.on('connection', function (socket) {
         if (data.id === config.DEVICE_ID) {
             handleLocalServer(socket);
         } else {
-            updateQueue({
-                id: socket.id,
-                socket: socket
-            }, true);
+            handleBrowser(socket);
         }
     });
     if (address.address.match(/^127.0.0.1/)) {
@@ -70,6 +82,45 @@ var handleLocalServer = function (socket) {
         broadcastLocalStatus(localServerUp, socket);
     });
 };
+
+var nextBrowserId = 1;
+function handleBrowser (socket) {
+    var me = tbone.models.base.make();
+    var myId = nextBrowserId++;
+    socket.emit('yourId', myId);
+    me.query('id', myId);
+    browsers.add(me);
+    T(function () {
+        if (!socket.disconnected) {
+            socket.emit('browsers', T('browsers'));
+        }
+    });
+    T(function () {
+        if (!socket.disconnected) {
+            socket.emit('drive', T('drive'));
+        }
+    });
+    // Expect the client to say "keepDriving" every ~500 ms.
+    var driveTimeout;
+    function stopDrivingAfterTimeout() {
+        if (driveTimeout) {
+            clearTimeout(driveTimeout);
+        }
+        driveTimeout = setTimeout(function () {
+            me.query('drive', {});
+        }, 1000);
+    }
+    socket.on('drive', function (data) {
+        me.query('drive', _.extend(data, { browserId: myId }));
+        stopDrivingAfterTimeout();
+    });
+    socket.on('keepDriving', function () {
+        stopDrivingAfterTimeout();
+    });
+    socket.on('disconnect', function () {
+        browsers.remove(me);
+    });
+}
 
 var broadcastLocalStatus = function (isUp, socket) {
     var statusObj = {};

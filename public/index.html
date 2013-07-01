@@ -7,6 +7,7 @@
 </head>
 <body>
     <div tbone="tmpl topBannerWrap"></div>
+    <div tbone="tmpl stuff"></div>
     <div class="intro">
         <h1>PETBOT v0.0.1</h1>
         <p>Call into VSee first so you can see where you're going. Then control PETBOT by
@@ -22,12 +23,17 @@
         email to <a href="mailto:arizzitano@appneta.com" target="_blank">arizzitano@appneta.com</a>
         or ping @ari on HipChat. Better yet, <a href="http://github.com/arizzitano/petbot">open a pull request</a>.
     </div>
-    <div class="direction"></div>
+    <div tbone="view direction"></div>
 
     <script name="topBannerWrap" type="text/tbone-tmpl">
         <div class="top-banner <%=localStatus.status%>">
             <%=localStatus.message%>
         </div>
+    </script>
+
+    <script name="stuff" type="text/tbone-tmpl">
+        <%=browserId%>
+        <%=browsers%>
     </script>
 
     <script src="/socket.io/socket.io.js"></script>

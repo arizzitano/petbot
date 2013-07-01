@@ -22,14 +22,14 @@ a, a:visited, a:active {
 }
 .direction {
     color: #fff;
-    font-size: 300px;
+    font-size: 250px;
     width: 100%;
     height: 100%;
     text-align: center;
     position: fixed;
     top: 0;
     left: 0;
-    margin-top: 265px;
+    margin-top: 355px;
     pointer-events: none;
 
     &:before {
@@ -40,13 +40,16 @@ a, a:visited, a:active {
         width: 100%;
     }
 }
-.forward, .back, .left, .right {
+.forward, .backward, .left, .right {
     background: #6aae49;
+}
+.otherDriver {
+    background: #888;
 }
 .forward:before {
     content: '\2191';
 }
-.back:before {
+.backward:before {
     content: '\2193';
 }
 .left:before {
@@ -61,10 +64,10 @@ a, a:visited, a:active {
 .forward.left:before {
     content: '\2196';
 }
-.back.right:before {
+.backward.right:before {
     content: '\2198';
 }
-.back.left:before {
+.backward.left:before {
     content: '\2199';
 }
 .top-banner {
