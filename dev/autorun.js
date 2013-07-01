@@ -5,6 +5,10 @@ process.title = 'petbot_autorun';
 var watch = require('node-watch');
 var _ = require('underscore')._;
 require('./utils.js');
+var config = require('../common/config');
+var client = require('socket.io-client');
+
+var WEB_PORT = 5000;
 
 var tasks = [
   {
@@ -33,12 +37,34 @@ var tasks = [
     watch: /^remote\//,
     exec: function () {
       info('Remote: Starting...');
-      var env = { PORT: 5000 };
-      exec('node', ['petbot.js'], { cwd: './remote', pipe: true, name: 'remote', env: env }, function (err) {
+      var env = { PORT: WEB_PORT };
+      var cmd = [
+        'killall --quiet -SIGHUP --user ' + process.env.USER + ' petbot',
+        'sleep 0.5', // wait for the petbot process to shut down gracefully
+        'node petbot'
+      ].join(';');
+      exec('sh', ['-c', cmd], { cwd: 'remote/', pipe: true, name: 'remote', env: env }, function (err) {
         info('Remote: Exited.');
       });
     },
     execOnStart: true
+  },
+  {
+    name: 'reload ui',
+    watch: /^public\//,
+    exec: function () {
+      info('sending reload command to ' + config.HOST);
+      var socket = client.connect('http://localhost:5000/', {
+        'force new connection': true,
+        transports: ['xhr-polling']
+      });
+      socket.emit('reloadui');
+      // Don't leave this connection hanging around
+      setTimeout(function () {
+        socket.disconnect();
+      }, 10000);
+    },
+    debounceDelay: 100
   }
 ];
 
@@ -50,7 +76,7 @@ _.each(tasks, function(opts) {
       timeout = setTimeout(function() {
         timeout = null;
         _exec();
-      }, opts.execInterval || 1000);
+      }, opts.debounceDelay || 500);
       return true;
     }
     return false;

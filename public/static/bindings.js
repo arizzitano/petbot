@@ -35,6 +35,11 @@ socket.on('localStatus', function (data) {
         console.log('jquery not loaded yet');
     }
 });
+socket.on('reloadui', function () {
+    console.log('Reloading...')
+    location.reload();
+});
+
 var setStatus = function () {
     $('.top-banner').addClass(localStatus.status);
     $('.top-banner').text(localStatus.message);

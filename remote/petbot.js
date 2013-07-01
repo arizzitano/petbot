@@ -1,3 +1,5 @@
+process.title = 'petbot';
+
 var config = require('../common/config');
 var express = require('express');
 var app = express();
@@ -16,6 +18,17 @@ app.configure(function () {
 });
 
 var server = app.listen(process.env.PORT || 5000);
+
+// Gracefully shutdown (preferably releasing port immediately) on SIGHUP
+process.on('SIGHUP', function () {
+  try {
+    server.close(function() {
+      process.exit(0);
+    });
+  } catch(e) {
+    process.exit(0);
+  }
+});
 
 var io = socket.listen(server);
 
@@ -37,6 +50,12 @@ io.sockets.on('connection', function (socket) {
             }, true);
         }
     });
+    if (address.address.match(/^127.0.0.1/)) {
+        socket.on('reloadui', function () {
+            console.log('broadcasting UI reload');
+            io.sockets.emit('reloadui');
+        });
+    }
 });
 
 var handleLocalServer = function (socket) {
