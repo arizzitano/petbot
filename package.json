@@ -17,7 +17,8 @@
     "duino": "0.0.7",
     "pi-gpio": "0.0.2",
     "express": "3.0",
-    "underscore": "1.4.4"
+    "underscore": "1.4.4",
+    "tbone": "https://tbonejscdn.s3.amazonaws.com/tbone-v0.3.4.tgz"
   },
   "repository": {
     "type": "git",

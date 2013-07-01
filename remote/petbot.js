@@ -8,7 +8,7 @@ var _ = require('underscore');
 var queue = [];
 var localServerUp = null;
 
-var T = require('./tbone.js').tbone;
+var T = require('tbone').tbone;
 var tbone = T;
 
 var browsers = tbone.collections.base.make({
