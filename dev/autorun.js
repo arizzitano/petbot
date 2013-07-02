@@ -26,15 +26,35 @@ var tasks = [
     watch: /^local\//,
     exec: function () {
       info('Local: Starting...');
-      var env = { LOCAL_SERVER: 'mock' };
-      var cmd = [
-        'killall --quiet -SIGHUP --user ' + process.env.USER + ' petbot_local',
-        'sleep 0.5', // wait for the petbot process to shut down gracefully
-        'node localserver'
-      ].join(';');
-      exec('sh', ['-c', cmd], { cwd: 'local/', pipe: true, name: 'local', env: env }, function (err) {
-        info('Local: Exited.');
-      });
+      var mode = 'raspi';
+      if (mode === 'mock') {
+        var env = { LOCAL_SERVER: mode };
+        var cmd = [
+          'killall --quiet -SIGHUP --user ' + process.env.USER + ' petbot_local',
+          'sleep 0.5', // wait for the petbot process to shut down gracefully
+          'node localserver'
+        ].join(';');
+        exec('sh', ['-c', cmd], { cwd: 'local/', pipe: true, name: 'local', env: env }, function (err) {
+          info('Local: Exited.');
+        });
+      } else {
+        mode = 'mock';
+        var remoteCmd = [
+          'killall --quiet -SIGHUP petbot_local',
+          'sleep 0.5', // wait for the petbot process to shut down gracefully
+          'cd petbot_rsync/local/',
+          'LOCAL_SERVER=' + mode + ' PETBOT_HOST=ssh_auto node localserver'
+        ].join(';');
+        var cmd = [
+          'echo Syncing to Raspberry Pi...',
+          'rsync --recursive --quiet local/ pi@raspberrypi.local:~/petbot_rsync/local/',
+          'echo Finished syncing to Raspberry Pi.',
+          'ssh pi@raspberrypi.local "' + remoteCmd + '"'
+        ].join(';');
+        exec('sh', ['-c', cmd], { cwd: './', pipe: true, name: 'local' }, function (err) {
+          info('Local: Exited.');
+        });
+      }
     },
     execOnStart: 500
   },

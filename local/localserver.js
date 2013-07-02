@@ -24,8 +24,15 @@ localServer('awake', function () {
     return _.keys(T('servers')).length > 0;
 });
 
+var host = config.HOST;
+
+if (process.env.PETBOT_HOST == 'ssh_auto') {
+    host = 'http://' + process.env.SSH_CLIENT.split(' ')[0];
+    console.log('auto host: ' + host);
+}
+
 var nextId = 1;
-var socket = client.connect(config.HOST, { transports: ['xhr-polling'] });
+var socket = client.connect(host, { transports: ['xhr-polling'] });
 socket.on('connect', function() {
     var me = tbone.make();
     me('id', nextId++);

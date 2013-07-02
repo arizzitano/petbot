@@ -6,6 +6,9 @@
 cd "$(dirname "$0")"
 cd ..
 
+# you'll need to run this every once in a while:
+# rsync --recursive --quiet ./ pi@raspberrypi.local:~/petbot_rsync/
+
 while :
 do
     killall -q petbot_autorun -u $USER
