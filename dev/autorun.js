@@ -26,11 +26,17 @@ var tasks = [
     watch: /^local\//,
     exec: function () {
       info('Local: Starting...');
-      exec('node', ['arduino.js'], { cwd: './local', pipe: true, name: 'local' }, function (err) {
+      var env = { LOCAL_SERVER: 'mock' };
+      var cmd = [
+        'killall --quiet -SIGHUP --user ' + process.env.USER + ' petbot_local',
+        'sleep 0.5', // wait for the petbot process to shut down gracefully
+        'node localserver'
+      ].join(';');
+      exec('sh', ['-c', cmd], { cwd: 'local/', pipe: true, name: 'local', env: env }, function (err) {
         info('Local: Exited.');
       });
     },
-    execOnStart: true
+    execOnStart: 500
   },
   {
     name: 'reset remote',
@@ -82,7 +88,9 @@ _.each(tasks, function(opts) {
     return false;
   };
   if (opts.execOnStart) {
-    opts.exec();
+    setTimeout(function () {
+      opts.exec();
+    }, typeof opts.execOnStart === 'number' ? opts.execOnStart : 0);
   }
 });
 

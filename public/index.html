@@ -6,7 +6,7 @@
     <script src="/lib/less-1.3.3.min.js"></script>
 </head>
 <body>
-    <div tbone="tmpl topBannerWrap"></div>
+    <div tbone="tmpl topBanner"></div>
     <div tbone="tmpl stuff"></div>
     <div class="intro">
         <h1>PETBOT v0.0.1</h1>
@@ -25,15 +25,20 @@
     </div>
     <div tbone="view direction"></div>
 
-    <script name="topBannerWrap" type="text/tbone-tmpl">
-        <div class="top-banner <%=localStatus.status%>">
-            <%=localStatus.message%>
-        </div>
+    <script name="topBanner" type="text/tbone-tmpl">
+        <%=status.message%>
     </script>
 
     <script name="stuff" type="text/tbone-tmpl">
-        <%=browserId%>
-        <%=browsers%>
+        browser ID: <%=browserId%>
+        <br>
+        browsers: <%=browsers%>
+        <br>
+        bots: <%=bots%>
+        <br>
+        Online: <%=onlineStr%>
+        <br>
+        Bot Online: <%=botOnlineStr%>
     </script>
 
     <script src="/socket.io/socket.io.js"></script>

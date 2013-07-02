@@ -21,6 +21,17 @@ T('drive', function () {
     });
     return driving.length === 0 ? {} : driving[0];
 });
+T('isDriving', function () {
+    return !!T('drive.forward') || !!T('drive.right');
+});
+T('botOnline', function () {
+    return _.keys(T('bots')).length > 0;
+});
+
+var bots = tbone.collections.base.make({
+    lookupById: true
+});
+T('bots', bots);
 
 app.configure(function () {
     var username = process.env.AUTH_USERNAME;
@@ -72,21 +83,45 @@ io.sockets.on('connection', function (socket) {
     }
 });
 
+var nextId = 1;
 var handleLocalServer = function (socket) {
     console.log('local server is connected');
-    localServerUp = true;
-    broadcastLocalStatus(localServerUp, socket);
+    var me = tbone.make();
+    var myId = nextId++;
+    socket.emit('yourId', myId);
+    me.query('id', myId);
+    bots.add(me);
+    T(function () {
+        if (!socket.disconnected) {
+            socket.emit('drive', T('drive'));
+        }
+    });
+    T(function () {
+        if (!socket.disconnected) {
+            if (T('isDriving')) {
+                socket.emit('keepDriving');
+                T('isDrivingTimer');
+                setTimeout(function () {
+                    T.toggle('isDrivingTimer');
+                }, 500);
+            }
+        }
+    });
+    socket.on('pins', function (data) {
+        me('pins', data);
+    });
+    socket.on('drive', function (data) {
+        me('drive', data);
+    });
     socket.on('disconnect', function () {
+        bots.remove(me);
         console.log('local server disconnected');
-        localServerUp = false;
-        broadcastLocalStatus(localServerUp, socket);
     });
 };
 
-var nextBrowserId = 1;
 function handleBrowser (socket) {
-    var me = tbone.models.base.make();
-    var myId = nextBrowserId++;
+    var me = tbone.make();
+    var myId = nextId++;
     socket.emit('yourId', myId);
     me.query('id', myId);
     browsers.add(me);
@@ -97,7 +132,17 @@ function handleBrowser (socket) {
     });
     T(function () {
         if (!socket.disconnected) {
+            socket.emit('bots', T('bots'));
+        }
+    });
+    T(function () {
+        if (!socket.disconnected) {
             socket.emit('drive', T('drive'));
+        }
+    });
+    T(function () {
+        if (!socket.disconnected) {
+            socket.emit('botOnline', !!T('botOnline'));
         }
     });
     // Expect the client to say "keepDriving" every ~500 ms.
@@ -121,60 +166,3 @@ function handleBrowser (socket) {
         browsers.remove(me);
     });
 }
-
-var broadcastLocalStatus = function (isUp, socket) {
-    var statusObj = {};
-    if (isUp === true) {
-        statusObj = {
-            online: true,
-            status: 'online',
-            message: 'PETBOT is online and ready to go!'
-        };
-    } else if (isUp === false) {
-        statusObj = {
-            online: false,
-            status: 'offline',
-            message: 'PETBOT is offline'
-        };
-    } else {
-        statusObj = {
-            online: false,
-            status: 'connecting',
-            message: 'Attempting to connect to PETBOT...'
-        };
-    }
-    socket.broadcast.emit('localStatus', statusObj);
-};
-
-// fire when a new connection moves into the #0 spot
-var openCurrentSocket = function (member) {
-    console.log('now listening to connection '+member.id);
-    broadcastLocalStatus(localServerUp, member.socket);
-    member.socket.on('direction', function (data) {
-        console.log('broadcasting: '+data);
-        member.socket.broadcast.emit('direction', data);
-    });
-    member.socket.on('disconnect', function () {
-        console.log('connection ' + member.id + ' is disconnecting');
-        // remove this connection from the queue
-        updateQueue(member, false);
-    });
-};
-
-// handle changes in the queue. add or remove, then start listening to a new connection
-// if necessary.
-var updateQueue = function (member, shouldAdd) {
-    var firstItemId = (queue.length > 0) ? queue[0].id : null;
-    if (shouldAdd) {
-        queue.push(member);
-    } else {
-        queue = _.reject(queue, function(item) {
-            return item.id === member.id;
-        });
-    }
-    // XXX possible race condition?
-    // if guid of first item has changed, there's a new connection in first place
-    if (queue.length > 0 && firstItemId !== queue[0].id) {
-        openCurrentSocket(queue[0]);
-    }
-};

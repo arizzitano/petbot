@@ -1,61 +1,82 @@
+process.title = 'petbot_local';
+
 var config = require('../common/config');
 var client = require('socket.io-client');
 var _ = require('underscore');
 
-var LocalServer = function () {
-    this.socket = client.connect(config.HOST);
-    this.BOARD_LOW = 0;
-    this.BOARD_HIGH = 1;
-    this.pinMap = {};
-};
+var T = require('tbone').tbone;
+var tbone = T;
 
-LocalServer.prototype.handleSignal = function (data) {
-    var self = this;
-    if (data.name == 'killswitch') {
-        self.kill();
-    } else {
-        var level = (data.active) ? self.BOARD_HIGH : self.BOARD_LOW;
-        self.write(data.name, level);
-    }
-}
+var servers = tbone.collections.base.make({
+    lookupById: true
+});
 
-LocalServer.prototype.sleep = function () {
-    console.log('local server is idle');
-}
+var localServer = tbone.make();
+T('servers', servers);
 
-LocalServer.prototype.wake = function () {
-    console.log('local server is awake');
-}
-
-LocalServer.prototype.write = function (direction, level) {
-    console.log('direction ' + direction + ' at level ' + level);
-}
-
-LocalServer.prototype.kill = function () {
-    var self = this;
-	console.log('KILLSWITCH ENGAGE');
-	_.each(pinMap, function (k, v) {
-	    self.write(v.pin, self.BOARD_LOW)
-	});
-}
-
-LocalServer.prototype.run = function () {
-    var self = this;
-    self.socket.on('connect', function() {
-        console.log('connected to remote server');
-        self.socket.emit('clientId', {id: config.DEVICE_ID});
-
-        self.wake();
-
-        self.socket.on('direction', function(data) {
-            self.handleSignal(data);
-        });
-
-        self.socket.on('disconnect', function() {
-            console.log('disconnected from remote server');
-            self.sleep();
-        });
+localServer('drive', function () {
+    var driving = _.filter(_.pluck(T('servers') || {}, 'drive'), function (drive) {
+        return drive && (!!drive.right || !!drive.forward);
     });
-};
+    return driving.length === 0 ? {} : driving[0];
+});
+localServer('awake', function () {
+    return _.keys(T('servers')).length > 0;
+});
 
-module.exports = LocalServer;
+var nextId = 1;
+var socket = client.connect(config.HOST, { transports: ['xhr-polling'] });
+socket.on('connect', function() {
+    var me = tbone.make();
+    me('id', nextId++);
+    servers.add(me);
+
+    console.log('connected to remote server');
+    socket.emit('clientId', {id: config.DEVICE_ID});
+
+    // Expect the server to say "keepDriving" every ~500 ms.
+    var driveTimeout;
+    function stopDrivingAfterTimeout() {
+        if (driveTimeout) {
+            clearTimeout(driveTimeout);
+        }
+        driveTimeout = setTimeout(function () {
+            me('drive', {});
+        }, 1000);
+    }
+    socket.on('drive', function(data) {
+        me('drive', data);
+        stopDrivingAfterTimeout();
+    });
+    socket.on('keepDriving', function () {
+        stopDrivingAfterTimeout();
+    });
+    T(function () {
+        if (!socket.disconnected) {
+            socket.emit('pins', localServer('pins'));
+        }
+    });
+    T(function () {
+        if (!socket.disconnected) {
+            socket.emit('drive', localServer('drive'));
+        }
+    });
+
+    socket.on('disconnect', function() {
+        console.log('disconnected from remote server');
+        servers.remove(me);
+    });
+});
+
+require('./' + process.env.LOCAL_SERVER + '.js')(localServer);
+
+// Gracefully shutdown on SIGHUP
+process.on('SIGHUP', function () {
+    try {
+        socket.disconnect(function() {
+            process.exit(0);
+        });
+    } catch(e) {
+        process.exit(0);
+    }
+});

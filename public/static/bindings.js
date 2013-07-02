@@ -1,38 +1,15 @@
-var socket = io.connect();
+var socket = io.connect('/', {
+    transports: ['xhr-polling'],
+    'reconnection delay': 100,
+    'max reconnection attempts': 10000
+});
 socket.emit('clientId', {id: 'browser'});
-// var keys = {
-//     37: {
-//         name: 'left',
-//         active: false,
-//         mode: 'steer'
-//     },
-//     38: {
-//         name: 'forward',
-//         active: false,
-//         mode: 'move'
-//     },
-//     39: {
-//         name: 'right',
-//         active: false,
-//         mode: 'steer'
-//     },
-//     40: {
-//         name: 'back',
-//         active: false,
-//         mode: 'move'
-//     }
-// };
 var keys = {
     37: 'left',
     38: 'forward',
     39: 'right',
     40: 'backward'
 };
-T('localStatus', {
-    online: false,
-    status: 'connecting',
-    message: 'Attempting to connect to PETBOT...'
-});
 socket.on('yourId', function (data) {
     T('browserId', data);
 });
@@ -42,9 +19,52 @@ socket.on('localStatus', function (data) {
 socket.on('browsers', function (data) {
     T('browsers', JSON.stringify(data));
 });
+socket.on('bots', function (data) {
+    T('bots', JSON.stringify(data));
+});
 socket.on('drive', function (data) {
     T('actualDrive', data);
 });
+socket.on('botOnline', function (data) {
+    T('botOnline', data);
+});
+socket.on('connect', function () {
+    T('online', true);
+});
+socket.on('reconnect', function () {
+    T('online', true);
+});
+socket.on('disconnect', function () {
+    T('online', false);
+});
+
+T('onlineStr', function () {
+    return T('online') + '';
+});
+T('botOnlineStr', function () {
+    return T('botOnline') + '';
+});
+T('status', function () {
+    if (T('online')) {
+        if (T('botOnline')) {
+            return {
+                name: 'online',
+                message: 'Connected.'
+            };
+        } else {
+            return {
+                name: 'connecting',
+                message: 'Connecting to petbot...'
+            };
+        }
+    } else {
+        return {
+            name: 'offline',
+            message: 'Connecting to server...'
+        };
+    }
+});
+
 socket.on('reloadui', function () {
     console.log('Reloading...')
     location.reload();
@@ -70,9 +90,13 @@ T(function () {
         setTimeout(function () {
             T.toggle('isDrivingTimer');
         }, 500);
-    } else {
-
     }
+});
+tbone.createView('topBanner', function () {
+    this.$el.removeClass('online');
+    this.$el.removeClass('connecting');
+    this.$el.removeClass('offline');
+    this.$el.addClass(T('status.name'));
 });
 tbone.createView('direction', function () {
     var $el = this.$el;

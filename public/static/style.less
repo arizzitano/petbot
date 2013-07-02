@@ -70,7 +70,7 @@ a, a:visited, a:active {
 .backward.left:before {
     content: '\2199';
 }
-.top-banner {
+.topBanner {
     width: 100%;
     height: 40px;
     display: block;
@@ -81,6 +81,11 @@ a, a:visited, a:active {
 
     &.online {
         background: #bada55;
+        overflow: hidden;
+        height: 0px;
+        padding: 0px;
+        transition: height 1s, padding 1s;
+        transition-delay: 1s;
     }
 
     &.offline {
