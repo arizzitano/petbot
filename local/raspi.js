@@ -68,6 +68,7 @@ var tbone = T;
 module.exports = function (me) {
     var lastDriveRight = 0;
     var lastDriveForward = 0;
+    var lastLightOn = false;
     T(function () {
         var drive = me('drive');
         if (drive.right !== lastDriveRight) {
@@ -99,6 +100,16 @@ module.exports = function (me) {
                 write('back', ON);
             }
             lastDriveForward = drive.forward;
+        }
+
+        var lightOn = drive.right !== 0 || drive.forward !== 0;
+        if (lightOn !== lastLightOn) {
+            if (lightOn) {
+                // write('light', ON);
+            } else {
+                // write('light', OFF);
+            }
+            lastLightOn = ligthOn;
         }
 
         me('pins.right', drive.right === 1 ? 5 : 0);
