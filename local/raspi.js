@@ -68,6 +68,7 @@ var T = require('tbone').tbone;
 var tbone = T;
 
 module.exports = function (me) {
+    me('pins.engine', 'raspi');
     var lastDriveRight = 0;
     var lastDriveForward = 0;
     var lastLightOn = false;

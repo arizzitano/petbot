@@ -2,6 +2,7 @@ var T = require('tbone').tbone;
 var tbone = T;
 
 module.exports = function (me) {
+    me('pins.engine', 'mock');
     T(function () {
         var drive = me('drive');
         me('pins.right', drive.right === 1 ? 5 : 0);
