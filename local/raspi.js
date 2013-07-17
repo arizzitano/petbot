@@ -52,6 +52,8 @@ function sleep () {
     });
 }
 
+var gpio = require('pi-gpio');
+
 var ON = 1; // XXX ?
 var OFF = 0;
 
