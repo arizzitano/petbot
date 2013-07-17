@@ -25,32 +25,32 @@ var RasPiServer = function () {
 // /**
 //  * open up all the relevant gpio pins (needs improvement)
 //  **/
-// RasPiServer.prototype.wake = function () {
-//     var self = this;
-//     _.each(self.pinMap, function (k, v) {
-//         try {
-// 			gpio.open(v.pin, 'output');
-// 		} catch (err) {
-// 			console.log(err);
-// 			v.open = true;
-// 		}
-//     });
-// };
+function wake () {
+    var self = this;
+    _.each(self.pinMap, function (k, v) {
+        try {
+			gpio.open(v.pin, 'output');
+		} catch (err) {
+			console.log(err);
+			v.open = true;
+		}
+    });
+}
 
 // /**
 //  * close all the relevant gpio pins (needs improvement)
 //  **/
-// RasPiServer.prototype.sleep = function () {
-//     var self = this;
-//     _.each(self.pinMap, function (k, v) {
-//         try {
-// 			gpio.close(v.pin, 'output');
-// 		} catch (err) {
-// 			console.log(err);
-// 			v.open = false;
-// 		}
-//     });
-// };
+function sleep () {
+    var self = this;
+    _.each(self.pinMap, function (k, v) {
+        try {
+			gpio.close(v.pin, 'output');
+		} catch (err) {
+			console.log(err);
+			v.open = false;
+		}
+    });
+}
 
 var ON = 1; // XXX ?
 var OFF = 0;
@@ -118,8 +118,17 @@ module.exports = function (me) {
         me('pins.backward', drive.forward === -1 ? 5 : 0);
     });
 
+    var lastAwake = false;
     T(function () {
         var awake = !!me('awake');
+        if (awake !== lastAwake) {
+            if (awake) {
+                wake();
+            } else {
+                sleep();
+            }
+            lastAwake = awake;
+        }
         me('pins.ready', awake);
     });
 };
