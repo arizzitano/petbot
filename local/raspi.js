@@ -14,7 +14,7 @@ var RasPiServer = function () {
             open: false
         },
         'right': {
-            pin: 15,
+            pin: 12,
             open: false
         }
     };
