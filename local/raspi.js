@@ -66,6 +66,7 @@ function write (direction, level) {
 }
 
 module.exports = function (me) {
+    me('pins.engine', 'raspi');
     var lastDriveRight = 0;
     var lastDriveForward = 0;
     var lastLightOn = false;
