@@ -1,49 +1,52 @@
-// var LocalServer = require('./localserver');
-var RasPiServer = function () {
-    this.pinMap = {
-        'forward': {
-            pin: 7,
-            open: false
-        },
-        'back': {
-            pin: 11,
-            open: false
-        },
-        'left': {
-            pin: 16,
-            open: false
-        },
-        'right': {
-            pin: 12,
-            open: false
-        }
-    };
-};
-// RasPiServer.prototype = new LocalServer();
-// RasPiServer.prototype.constructor = RasPiServer;
+var gpio = require('pi-gpio');
+var _ = require('underscore');
+var T = require('tbone').tbone;
+var tbone = T;
 
-// /**
-//  * open up all the relevant gpio pins (needs improvement)
-//  **/
+var pinMap = {
+    'forward': {
+        pin: 7,
+        open: false
+    },
+    'back': {
+        pin: 11,
+        open: false
+    },
+    'left': {
+        pin: 12,
+        open: false
+    },
+    'right': {
+        pin: 16,
+        open: false
+    },
+    'light': {
+        pin: 15,
+        open: false
+    }
+};
+/**
+ * open up all the relevant gpio pins (needs improvement)
+ **/
 function wake () {
-    var self = this;
-    _.each(self.pinMap, function (k, v) {
+    _.each(pinMap, function (v, k) {
         try {
+			v.open = true;
 			gpio.open(v.pin, 'output');
+			console.log('opened '+v.pin);
 		} catch (err) {
 			console.log(err);
-			v.open = true;
 		}
     });
 }
 
-// /**
-//  * close all the relevant gpio pins (needs improvement)
-//  **/
+/**
+ * close all the relevant gpio pins (needs improvement)
+ **/
 function sleep () {
-    var self = this;
-    _.each(self.pinMap, function (k, v) {
+    _.each(pinMap, function (v, k) {
         try {
+            v.open = false;
 			gpio.close(v.pin, 'output');
 		} catch (err) {
 			console.log(err);
@@ -52,20 +55,15 @@ function sleep () {
     });
 }
 
-var gpio = require('pi-gpio');
-
 var ON = 1; // XXX ?
 var OFF = 0;
 
 function write (direction, level) {
-    var self = this;
-    if (self.pinMap[direction].open) {
-        gpio.write(self.pinMap[direction].pin, level);
+    console.log('pin '+pinMap[direction].pin+' is '+pinMap[direction].open);
+    if (pinMap[direction].open) {
+        gpio.write(pinMap[direction].pin, level);
     }
 }
-
-var T = require('tbone').tbone;
-var tbone = T;
 
 module.exports = function (me) {
     var lastDriveRight = 0;
@@ -73,6 +71,7 @@ module.exports = function (me) {
     var lastLightOn = false;
     T(function () {
         var drive = me('drive');
+        console.log(drive);
         if (drive.right !== lastDriveRight) {
             if (lastDriveRight === 1) {
                 write('right', OFF);
@@ -104,14 +103,14 @@ module.exports = function (me) {
             lastDriveForward = drive.forward;
         }
 
-        var lightOn = drive.right !== 0 || drive.forward !== 0;
+        var lightOn = drive.right || drive.forward;
         if (lightOn !== lastLightOn) {
             if (lightOn) {
-                // write('light', ON);
+                write('light', ON);
             } else {
-                // write('light', OFF);
+                write('light', OFF);
             }
-            lastLightOn = ligthOn;
+            lastLightOn = lightOn;
         }
 
         me('pins.right', drive.right === 1 ? 5 : 0);
@@ -121,6 +120,7 @@ module.exports = function (me) {
     });
 
     var lastAwake = false;
+
     T(function () {
         var awake = !!me('awake');
         if (awake !== lastAwake) {
