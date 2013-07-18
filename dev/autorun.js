@@ -38,12 +38,11 @@ var tasks = [
           info('Local: Exited.');
         });
       } else {
-        mode = 'mock';
         var remoteCmd = [
           'killall --quiet -SIGHUP petbot_local',
           'sleep 0.5', // wait for the petbot process to shut down gracefully
           'cd petbot_rsync/local/',
-          'LOCAL_SERVER=' + mode + ' PETBOT_HOST=ssh_auto node localserver'
+          'LOCAL_SERVER=' + mode + ' node localserver'
         ].join(';');
         var cmd = [
           'echo Syncing to Raspberry Pi...',
