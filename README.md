@@ -3,6 +3,8 @@ PETBOT
 
 The car is controlled by a radio transmitter wired to a Raspberry Pi running a local node.js server. Commands are sent via socket.io through a web UI & second node.js server hosted remotely on Heroku. The local server connects to the remote server as a socket.io client, thus allowing commands to be sent to the Pi from anywhere in the world with very low latency.
 
+Read about how I built it [here](http://appneta.com/blog/telepresence-robot).
+
 Resistance is futile.
 
 
